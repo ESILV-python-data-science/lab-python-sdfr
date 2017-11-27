@@ -106,7 +106,7 @@ if __name__ == "__main__":
         searchPath = os.path.join(args.images_dir, '*.jpg')
         images_path_list = glob.glob(searchPath)
 
-    print(images_path_list[:])
+    #print(images_path_list[:])
 
     if not images_path_list:
         logger.warning("Did not found any jpg image in %s"%args.images_dir)
@@ -114,6 +114,11 @@ if __name__ == "__main__":
 
     # TODO : Extract the feature vector on all the pages found and store the feature
     # vectors in  data
+
+    for i in images_path_list:
+        with Image.open(i) as img:
+            data.append(extract_features(img))
+    #print(data)
 
     # cluster the feature vectors
     if not data:
@@ -126,3 +131,6 @@ if __name__ == "__main__":
 
     # TODO : run the K-Means clusering and call copy_to_dir to copy the image
     # in the directory corresponding to its cluster
+
+    kmeans = KMeans().fit(X)
+    copy_to_dir(images_path_list, kmeans.labels_, args.move_images)
