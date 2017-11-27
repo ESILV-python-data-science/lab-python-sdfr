@@ -1,0 +1,6 @@
+numpy==1.13.3
+olefile==0.44
+Pillow==4.3.0
+scikit-learn==0.19.1
+scipy==1.0.0
+tqdm==4.19.4
