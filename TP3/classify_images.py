@@ -17,6 +17,8 @@ from PIL import Image, ImageFilter
 from sklearn.cluster import KMeans
 from sklearn import svm, metrics, neighbors
 from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score
 
 import numpy as np
 
@@ -44,7 +46,7 @@ def extract_features_subresolution(img,img_feature_size = (8, 8)):
         img_feature_size, Image.BOX).filter(ImageFilter.SHARPEN)
 
     # return the values of the reduced image as features
-    return [i - 255 for i in reduced_img.getdata()]
+    return [255 - i for i in reduced_img.getdata()]
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Extract features, train a classifier on images and test the classifier')
@@ -60,8 +62,11 @@ if __name__ == "__main__":
 
 
     if args.load_features:
-        features = pd.read_pickle(args.load_features)
-        print(features.describe())
+        df_input = pd.read_pickle(args.load_features)
+        print(df_input.head())
+        y = df_input['class']
+        X = df_input.drop('class', axis = 1)
+        # print(df_input)
 
     else:
 
@@ -71,6 +76,7 @@ if __name__ == "__main__":
         # specify the column names :  filename , class
         df = pd.read_csv('MNIST_all.csv', names=['filename', 'class'])
         file_list = []
+        class_list = []
         current_row = 0
         file_list = df.filename
 
@@ -95,6 +101,7 @@ if __name__ == "__main__":
 
         # convert to np.array
         X = np.array(data)
+        y = df['class']
         logger.info("Running clustering")
 
 
@@ -103,6 +110,7 @@ if __name__ == "__main__":
     if args.save_features:
         # convert X to dataframe with pd.DataFrame and save to pickle with to_pickle
         df_features = pd.DataFrame(X)
+        df_features['class'] = y
         df_features.to_pickle(args.save_features)
         #logger.info('Saved {} features and class to {}'.format(df_features.shape,args.save_features))
 
@@ -115,18 +123,21 @@ if __name__ == "__main__":
     logger.info("Training Classifier")
 
     # Use train_test_split to create train/test split
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
     logger.info("Train set size is {}".format(X_train.shape))
     logger.info("Test set size is {}".format(X_test.shape))
 
     if args.nearest_neighbors:
         # create KNN classifier with args.nearest_neighbors as a parameter
         logger.info('Use kNN classifier with k= {}'.format(args.nearest_neighbors))
+        clf = KNeighborsClassifier(n_neighbors=args.nearest_neighbors)
     else:
         logger.error('No classifier specified')
         sys.exit()
 
     # Do Training@
     t0 = time.time()
+    clf.fit(X_train, y_train)
     logger.info("Training  done in %0.3fs" % (time.time() - t0))
 
     # Do testing
@@ -136,3 +147,4 @@ if __name__ == "__main__":
 
     # Print score produced by metrics.classification_report and metrics.accuracy_score
     logger.info("Testing  done in %0.3fs" % (time.time() - t0))
+    print(accuracy_score(y_test, predicted))
