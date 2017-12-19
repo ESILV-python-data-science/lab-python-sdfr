@@ -123,8 +123,10 @@ if __name__ == "__main__":
     logger.info("Training Classifier")
 
     # Use train_test_split to create train/test split
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+    X_train, X_test_valid, y_train, y_test_valid = train_test_split(X, y, train_size=0.6)
+    X_test, X_valid, y_test, y_valid = train_test_split(X_test_valid, y_test_valid, test_size=0.5)
     logger.info("Train set size is {}".format(X_train.shape))
+    logger.info("Validation set size is {}".format(X_valid.shape))
     logger.info("Test set size is {}".format(X_test.shape))
 
     if args.nearest_neighbors:
@@ -143,8 +145,20 @@ if __name__ == "__main__":
     # Do testing
     logger.info("Testing Classifier")
     t0 = time.time()
+    predicted = clf.predict(X_valid)
+
+    # Print score produced by metrics.classification_report and metrics.accuracy_score
+    logger.info("Testing  done in %0.3fs" % (time.time() - t0))
+    print(accuracy_score(y_valid, predicted))
+
+    # After testing different values of k, we find that the best value is 6. Let's print the score on the test set
+
+    # Do testing
+    logger.info("Testing Classifier")
+    t0 = time.time()
     predicted = clf.predict(X_test)
 
     # Print score produced by metrics.classification_report and metrics.accuracy_score
     logger.info("Testing  done in %0.3fs" % (time.time() - t0))
     print(accuracy_score(y_test, predicted))
+    
