@@ -313,6 +313,8 @@ if __name__ == "__main__":
 
         lr = LogisticRegression()
         knn = neighbors.KNeighborsClassifier(3)
+        onenn = neighbors.KNeighborsClassifier(1)
+        twonn = neighbors.KNeighborsClassifier(2)
 
         for i in range(test_length):
             test_accuracy = np.zeros(10)
@@ -324,8 +326,15 @@ if __name__ == "__main__":
                 #train_accuracy_score, test_accuracy_score = train_and_test_classifier(lr,X_train,X_test_bis,Y_train,Y_test_bis)
                 #test_accuracy[j]=test_accuracy_score
 
-                train_accuracy_score, test_accuracy_score = train_and_test_classifier(knn,X_train,X_test_bis,Y_train,Y_test_bis)
+                #train_accuracy_score, test_accuracy_score = train_and_test_classifier(onenn,X_train,X_test_bis,Y_train,Y_test_bis)
+                #test_accuracy[j]=test_accuracy_score
+
+                train_accuracy_score, test_accuracy_score = train_and_test_classifier(twonn,X_train,X_test_bis,Y_train,Y_test_bis)
                 test_accuracy[j]=test_accuracy_score
+
+                #train_accuracy_score, test_accuracy_score = train_and_test_classifier(knn,X_train,X_test_bis,Y_train,Y_test_bis)
+                #test_accuracy[j]=test_accuracy_score
+
             mean_accuracy[i]=np.mean(test_accuracy)
             std_accuracy[i]=np.std(test_accuracy)
             print(test_accuracy)
@@ -336,7 +345,7 @@ if __name__ == "__main__":
 
         # Plot the testing curves (mean accuracy) on a plot with error bars (standard deviation of the accuracy)
         plt.figure()	
-        plt.title('3NN')
+        plt.title('2NN')
         plt.errorbar(test_sets, mean_accuracy, yerr=std_accuracy,fmt='o')
         plt.show()
 
